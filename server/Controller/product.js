@@ -7,7 +7,6 @@ async function getProducts(req, res) {
 async function addNewProduct(req, res) {
   const { name, description, price, category, subCategory } = req.body;
   const imageUrl = req.file ? req.file.filename : null;
-  console.log(product);
   if (subCategory === null) {
     const product = await Product.create({
       name,

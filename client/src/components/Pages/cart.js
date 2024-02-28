@@ -1,6 +1,8 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const products = [
   {
@@ -32,7 +34,77 @@ const products = [
 
 export default function Cart() {
   const [open, setOpen] = useState(true);
+  const [cartItems, setCartItems] = useState([]);
+  const [subtotal, setSubTotal] = useState(0);
 
+  const token = localStorage.getItem("token");
+  useEffect(() => {
+    // Fetch total prices from the backend
+    axios
+      .get("http://localhost:8000/cart/total-prices")
+      .then((response) => setSubTotal(response.data.totalPrices))
+      .catch((error) => console.error(error));
+  }, []);
+  useEffect(() => {
+    const decodedToken = jwtDecode(token);
+    const fetchCartItems = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/cart", {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setCartItems(response.data.cartItem);
+        console.log(response.data.cartItem);
+      } catch (error) {
+        console.log("error fetching user cart");
+      }
+    };
+    fetchCartItems();
+  }, []);
+  const handleRemoveItem = async (itemId) => {
+    try {
+      await axios.delete(`http://localhost:8000/cart/remove/${itemId}`, {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // setCartItems((prevItems) =>
+      //   prevItems.map((cartItem) => {
+      //     if (cartItem && cartItem.items) {
+      //       return {
+      //         ...cartItem,
+      //         items: cartItem.items.filter((item) => item._id !== itemId),
+      //       };
+      //     }
+      //     return cartItem;
+      //   })
+      // );
+
+      // setCartItems((prevItems) => {
+      //   console.log("prevItems", prevItems);
+      //   const updatedItems = prevItems.map((cartItem) => {
+      //     if (cartItem && cartItem.items && cartItem.items.length > 0) {
+      //       const filterItem = cartItem.items.filter(
+      //         (item) => item._id !== itemId
+      //       );
+      //       console.log("filter Items", filterItem);
+      //       return {
+      //         ...cartItem,
+      //         items: filterItem,
+      //       };
+      //     }
+      //     return cartItem;
+      //   });
+      //   console.log("items", updatedItems);
+      // });
+      setCartItems((prevItems) =>
+        prevItems.filter((cartItem) => cartItem._id !== itemId)
+      );
+
+      console.log("Item removed successfully");
+    } catch (error) {
+      console.log("item not removed", error);
+    }
+  };
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={setOpen}>
@@ -86,11 +158,11 @@ export default function Cart() {
                             role="list"
                             className="-my-6 divide-y divide-gray-200"
                           >
-                            {products.map((product) => (
+                            {cartItems.map((product) => (
                               <li key={product.id} className="flex py-6">
                                 <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                                   <img
-                                    src={product.imageSrc}
+                                    src={`http://localhost:8000/uploads/${product.image_url}`}
                                     alt={product.imageAlt}
                                     className="h-full w-full object-cover object-center"
                                   />
@@ -107,7 +179,7 @@ export default function Cart() {
                                       <p className="ml-4">{product.price}</p>
                                     </div>
                                     <p className="mt-1 text-sm text-gray-500">
-                                      {product.color}
+                                      {product.totalPrice}
                                     </p>
                                   </div>
                                   <div className="flex flex-1 items-end justify-between text-sm">
@@ -119,6 +191,9 @@ export default function Cart() {
                                       <button
                                         type="button"
                                         className="font-medium text-indigo-600 hover:text-indigo-500"
+                                        onClick={() =>
+                                          handleRemoveItem(product._id)
+                                        }
                                       >
                                         Remove
                                       </button>
@@ -135,7 +210,7 @@ export default function Cart() {
                     <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
                       <div className="flex justify-between text-base font-medium text-gray-900">
                         <p>Subtotal</p>
-                        <p>$262.00</p>
+                        <p>${subtotal}</p>
                       </div>
                       <p className="mt-0.5 text-sm text-gray-500">
                         Shipping and taxes calculated at checkout.

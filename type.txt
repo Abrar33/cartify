@@ -1,4 +1,5 @@
 This project build on mern developement program. The tech use for this app are expressjs,reactjs and mongodb.
 for backend we use expressjs and also we use reactjs for frontend. The Css library used for styling is tialwindCss.
  Database session is completed by mongodb.The reason behind this project to ckeck our skill or pulish the skills 
- This is demo project but also at the same time it gives the vibe of real-world project
+ This is demo project but also at the same time it gives the vibe of real-world project,
+ the issues are solved

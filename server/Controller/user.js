@@ -23,7 +23,7 @@ async function handleUserSignIn(req, res) {
       .json({ status: false, message: "invalid credentials" });
   }
   const token = setUser(user);
-  res.cookie("token", token, { httpOnly: true, maxAge: 3600000 }); // Set httpOnly and maxAge (optional) for security
+  res.cookie("token", token, { httpOnly: true, maxAge: 3 }); // Set httpOnly and maxAge (optional) for security
 
   return res.json({ status: true, message: "sucessful", user, token });
 }

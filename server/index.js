@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const products = require("./Routes/product");
 const usersRouter = require("./Routes/user");
 const company = require("./Routes/company");
+const cartRouter = require("./Routes/cart");
 const { urlencoded } = require("body-parser");
 const cookieParser = require("cookie-parser");
 const { getUser } = require("./services/auth");
@@ -47,6 +48,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api/v1", products);
 app.use("/auth", usersRouter);
 app.use("/company", company);
+app.use("/cart", cartRouter);
 console.log("hello", process.env.PORT);
 app.get("/message", (req, res) => {
   // Your logic to fetch or generate data

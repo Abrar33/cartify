@@ -103,7 +103,7 @@ const Header = () => {
       if (token) {
         try {
           const decodedToken = jwtDecode(token);
-          setUser(decodedToken.firstName);
+          setUser(decodedToken);
         } catch (error) {
           console.log("error");
         }
@@ -111,6 +111,12 @@ const Header = () => {
     };
     fetchData();
   }, []);
+  const test = () => {
+    console.log(user);
+  };
+  const handleLogOut = () => {
+    localStorage.removeItem("token");
+  };
   return (
     <div className="bg-white">
       <header className="relative inset-x-0 top-0 z-50">
@@ -176,6 +182,7 @@ const Header = () => {
                           active ? "bg-gray-100" : "",
                           "block px-4 py-2 text-sm text-gray-700"
                         )}
+                        onClick={test}
                       >
                         Your Profile
                       </a>
@@ -194,19 +201,23 @@ const Header = () => {
                       </NavLink>
                     )}
                   </Menu.Item>
-                  <Menu.Item>
-                    {({ active }) => (
-                      <NavLink
-                        to="/new"
-                        className={classNames(
-                          active ? "bg-gray-100" : "",
-                          "block px-4 py-2 text-sm text-gray-700"
-                        )}
-                      >
-                        Add Product
-                      </NavLink>
-                    )}
-                  </Menu.Item>
+                  {user.role === "ADMIN" ? (
+                    <Menu.Item>
+                      {({ active }) => (
+                        <NavLink
+                          to="/new"
+                          className={classNames(
+                            active ? "bg-gray-100" : "",
+                            "block px-4 py-2 text-sm text-gray-700"
+                          )}
+                        >
+                          Add Product
+                        </NavLink>
+                      )}
+                    </Menu.Item>
+                  ) : (
+                    ""
+                  )}
                   <Menu.Item>
                     {({ active }) => (
                       <a
@@ -215,6 +226,7 @@ const Header = () => {
                           active ? "bg-gray-100" : "",
                           "block px-4 py-2 text-sm text-gray-700"
                         )}
+                        onClick={handleLogOut}
                       >
                         Sign out
                       </a>
